@@ -1,6 +1,6 @@
 package com.example.democlient.model;
 
-public class Mine {
+public class Boxer {
     private int kick;
     private int block;
     private int score;

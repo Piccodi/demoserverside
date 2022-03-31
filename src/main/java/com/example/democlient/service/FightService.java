@@ -1,8 +1,7 @@
 package com.example.democlient.service;
-
+// old
 import com.example.democlient.model.Game;
-import com.example.democlient.model.Mine;
-import com.example.democlient.model.WebSocketConnection;
+import com.example.democlient.model.Player;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -20,10 +19,10 @@ public class FightService {
     private WebSocketService wss;
 
     @Async
-    public void fight (WebSocketConnection player1, WebSocketConnection player2) throws IOException, InterruptedException {
+    public void fight (Player player1, Player player2) throws IOException, InterruptedException {
 
-        player1.setMatch(true);
-        player2.setMatch(true);
+        //player1.setMatch(true);
+        //player2.setMatch(true);
 
         long timeoutStart;
 
@@ -45,10 +44,10 @@ public class FightService {
         String json1Round;
         String json2Round;
 
-        player1.setMyBlock(0);
-        player1.setMyKick(0);
-        player2.setMyBlock(0);
-        player2.setMyKick(0);
+       // player1.setMyBlock(0);
+        //player1.setMyKick(0);
+        //player2.setMyBlock(0);
+       // player2.setMyKick(0);
 
         game.setRoundCompleted(false);
         game.setCompleted(false);
@@ -68,10 +67,10 @@ public class FightService {
             jsonGamePart2 = "\"round\" : " + round + "," +
                     "\"mine\" : " ; //{}
 
-            stats1.setBlock(player1.getMyBlock());
-            stats1.setKick(player1.getMyKick());
-            stats2.setBlock(player2.getMyBlock());
-            stats2.setKick(player2.getMyKick());
+            //stats1.setBlock(player1.getMyBlock());
+           // stats1.setKick(player1.getMyKick());
+            //stats2.setBlock(player2.getMyBlock());
+            //stats2.setKick(player2.getMyKick());
 
             if(game.isRoundCompleted()){//результаты раунда
                 if(stats2.getKick() != 0 && stats1.getBlock() != stats2.getKick()){
@@ -110,8 +109,9 @@ public class FightService {
                         jsonGamePart2 +
                         json1Round));
             }
-            player1.setState( new String[]{jsonStart, jsonGamePart1 , jsonGamePart2 , json1Round});
-            player1.setTimeoutStart(timeoutStart);
+            //todo rework set state
+            //player1.setState( new String[]{jsonStart, jsonGamePart1 , jsonGamePart2 , json1Round});
+            //player1.setTimeoutStart(timeoutStart);
 
             System.out.println(jsonStart + jsonGamePart1 + "\"timeoutPassed\" : "
                     + (System.currentTimeMillis() - timeoutStart) + "," + jsonGamePart2 + json1Round);
@@ -124,19 +124,20 @@ public class FightService {
                         jsonGamePart2 +
                         json2Round));
             }
-            player2.setState( new String[]{jsonStart, jsonGamePart1 , jsonGamePart2 , json2Round});
-            player2.setTimeoutStart(timeoutStart);
+            //todo rework set state
+            //player2.setState( new String[]{jsonStart, jsonGamePart1 , jsonGamePart2 , json2Round});
+            //player2.setTimeoutStart(timeoutStart);
 
             System.out.println(jsonStart + jsonGamePart1 + "\"timeoutPassed\" : "
                     + (System.currentTimeMillis() - timeoutStart) + "," + jsonGamePart2 + json2Round);
 
-            if(game.isRoundCompleted()){
+            /*if(game.isRoundCompleted()){
                 player1.setMyBlock(0);
                 player1.setMyKick(0);
                 player2.setMyBlock(0);
                 player2.setMyKick(0);
             }
-
+             */
             Thread.sleep(game.getTimeout());
 
             if(game.isRoundCompleted()){
@@ -150,8 +151,8 @@ public class FightService {
 
             if(round == rounds) {
                 game.setCompleted(true);
-                player1.setGameCompleted(true);
-                player2.setGameCompleted(true);
+               /// player1.setGameCompleted(true);
+               /////// player2.setGameCompleted(true);
             }
         }
 

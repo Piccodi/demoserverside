@@ -1,6 +1,6 @@
 package com.example.democlient.service;
 
-import com.example.democlient.model.WebSocketConnection;
+// old
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;

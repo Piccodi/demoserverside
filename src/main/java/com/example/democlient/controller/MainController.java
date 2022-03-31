@@ -24,7 +24,7 @@ public class MainController {
             return ResponseEntity.ok().body("success: true");
         }
         else{
-            return new ResponseEntity("{ \"error\" : true, \"errorMessage\" : \"paswd mismatch\" }",HttpStatus.INTERNAL_SERVER_ERROR );
+            return new ResponseEntity("{ \"error\" : true, \"errorMessage\" : \"paswd mismatch\" }", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

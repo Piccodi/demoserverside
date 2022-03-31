@@ -1,7 +1,7 @@
 package com.example.democlient.ws;
 
-import com.example.democlient.model.WebSocketConnection;
-import com.example.democlient.service.WebSocketService;
+import com.example.democlient.model.Player;
+import com.example.democlient.service.PlayerService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.TextMessage;
@@ -12,11 +12,12 @@ import java.io.IOException;
 
 public class MyHandler extends TextWebSocketHandler {
 
-    private WebSocketService wsservice;
+    //todo сделать разбиение между состоянием и ответом либо сделать обьект response
+    private PlayerService playerService;
 
     @Autowired
-    public void setWsservice(WebSocketService wsservice) {
-        this.wsservice = wsservice;
+    public void setPlayerService(PlayerService playerService) {
+        this.playerService = playerService;
     }
 
     @Override
@@ -27,74 +28,82 @@ public class MyHandler extends TextWebSocketHandler {
         // fixme учесть перезаход в игру чтоб возвращалось состояние
         if(json.getString("action").equals("login")){
 
-            if(wsservice.playerAlreadyJoined(json.getString("username"))) {
-                var wsc = wsservice.findByUsername(json.getString("username"));
-                if(wsc.isMatch() && !wsc.isGameCompleted()){
+            if(playerService.playerAlreadyLogin(json.getString("username"))) {
+                var player = playerService.findByUsername(json.getString("username"));
+                player.getWss().close();
+                player.setWss(session);
+                //todo player.getState();
+                // todo проверить можно ли не создавать new text message, с слать сразу json
+                /*if(wsc.isMatch() && !wsc.isGameCompleted()){
                     wsc.getWss().close();
                     wsc.setWss(session);
-                    wsc.getWss().sendMessage(new TextMessage(wsservice.getCurrentState(wsc.getState(), wsc.getTimeoutStart())));
+                    //wsc.getWss().sendMessage(new TextMessage(wsservice.getCurrentState(wsc.getState(), wsc.getTimeoutStart())));
+
                 }
                 else{
                     wsc.getWss().close();
                     wsc.setWss(session);
                     wsservice.getQueue().remove(wsc);
-                    session.sendMessage(new TextMessage("{\"type\" : \"state\", \"state\" : \"init\", \"waitingCount\" : \""
+                    /*session.sendMessage(new TextMessage(НН"{\"type\" : \"state\", \"state\" : \"init\", \"waitingCount\" : \""
                             + wsservice.getQueue().size() + "\"}" ));
-
-                }
+                    */
+                //}
             }
             else{
                 System.out.println(session);
-                wsservice.addPlayerConnection(new WebSocketConnection(json.getString("username"), session));
-                session.sendMessage(new TextMessage("{\"type\" : \"state\", \"state\" : \"init\", \"waitingCount\" : \""
+                playerService.addNewPlayer(new Player(json.getString("username"), session));
+                /* session.sendMessage(new TextMessage("{\"type\" : \"state\", \"state\" : \"init\", \"waitingCount\" : \""
                     + wsservice.getQueue().size() + "\"}" ));
+
+                 */
             }
+
         }
         else {
             try {
-                var playerConnection = wsservice.findBySession(session).get();
+                var player = playerService.findBySession(session).get();
 
-                System.out.println(playerConnection.getWss());
+                System.out.println(player.getWss());
                 if (json.getString("action").equals("join")) {
-                    wsservice.join(playerConnection);
-                    session.sendMessage(new TextMessage("{\"type\" : \"response\"," +
+                    playerService.joinQueue(player);
+                    /*session.sendMessage(new TextMessage("{\"type\" : \"response\"," +
                             "\"requestId\" : " + json.getInt("id") + "," +
                             "\"data\" : \"OK\" }"
-                    ));
-                    session.sendMessage(new TextMessage("{\"type\" : \"state\", \"state\" : \"wait\", \"waitingCount\" : \""
-                            + wsservice.getQueue().size() + "\"}"));
+                    ));*/
+                    //session.sendMessage(new TextMessage("{\"type\" : \"state\", \"state\" : \"wait\", \"waitingCount\" : \""
+                      //      + wsservice.getQueue().size() + "\"}"));
                 }
                 if (json.getString("action").equals("undo_join")) {
-                    wsservice.undoJoin(playerConnection);
-                    session.sendMessage(new TextMessage("{\"type\" : \"response\"," +
+                    playerService.undoJoinQueue(player);
+                    /*session.sendMessage(new TextMessage("{\"type\" : \"response\"," +
                             "\"requestId\" : " + json.getInt("id") + "," +
                             "\"data\" : \"OK\" }"
                     ));
                     session.sendMessage(new TextMessage("{\"type\" : \"state\", \"state\" : \"init\", \"waitingCount\" : \""
-                            + wsservice.getQueue().size() + "\"}"));
+                            + wsservice.getQueue().size() + "\"}"));*/
                 }
                 if (json.getString("action").equals("game_set_block")) {
-                    session.sendMessage(new TextMessage("{\"type\" : \"response\"," +
+                    /*session.sendMessage(new TextMessage("{\"type\" : \"response\"," +
                             "\"requestId\" : " + json.getInt("id") + "," +
                             "\"data\" : \"OK\" }"
-                    ));
-                    playerConnection.setMyBlock(json.getInt("block"));
+                    ));*/
+                    playerService.setBlock(player, json.getInt("block"));
                 }
                 if (json.getString("action").equals("game_set_kick")) {
-                    session.sendMessage(new TextMessage("{\"type\" : \"response\"," +
+                    /*session.sendMessage(new TextMessage("{\"type\" : \"response\"," +
                             "\"requestId\" : " + json.getInt("id") + "," +
                             "\"data\" : \"OK\" }"
-                    ));
-                    playerConnection.setMyKick(json.getInt("kick"));
+                    ));*/
+                    playerService.setKick(player, json.getInt("kick"));
                 }
             }
             catch (Exception e){
-                session.sendMessage(new TextMessage("{\"type\" : \"response\"," +
+                /*session.sendMessage(new TextMessage("{\"type\" : \"response\"," +
                         "\"requestId\" : " + json.getInt("id") + "," +
                         "\"error\" : true," +
                         "\"errorMessage\" : \"something goes wrong...\" }"
                         ));
-
+                */
             }
         }
         System.out.println(message.getPayload());
